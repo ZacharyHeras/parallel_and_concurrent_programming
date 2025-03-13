@@ -170,7 +170,7 @@ int main(int argc, char **argv)
         update_ghost_cells(a, N, N);
         // print_board(a, N, N);
         iterations ++;
-        printf("%d\n", iterations);
+        // printf("%d\n", iterations);
     }
 
     endtime = get_time();
