@@ -33,7 +33,7 @@ int **alloc_board(int P, int Q) {
     return a;
 }
 
-int **init_board(int **a, int mrows, int ncols) {
+void **init_board(int **a, int mrows, int ncols) {
     int i,j;
 
     for (i=1; i<mrows-1; i++) {
@@ -41,11 +41,9 @@ int **init_board(int **a, int mrows, int ncols) {
             a[i][j] = (drand48() < 0.5) ? 0 : 1;
         }
     }
-
-    return a;
 }
 
-int **update_ghost_cells(int **a, int mrows, int ncols) {
+void **update_ghost_cells(int **a, int mrows, int ncols) {
     int i,j;
 
     a[0][0] = a[mrows-2][ncols-2];
@@ -64,24 +62,66 @@ int **update_ghost_cells(int **a, int mrows, int ncols) {
 
     for (j=1; j<ncols-1; j++)
         a[mrows-1][j] = a[1][j];
-
-    return a;
-}
-
-int **update_board(int **a, int mrows, int ncols) {
-    int i, j;
-
-    for (i=1; i<mrows-1; i++) {
-        for (j=1; j<ncols-1; j++) {
-            a[i][j] = isAlive(a, i, j);
-        }
-    }
-
-    return a;
 }
 
 int is_alive(int **a, int i, int j) {
-    
+    int num_neighbors = 0;
+
+    num_neighbors += a[i-1][j-1] == 1 ? 1 : 0;
+    num_neighbors += a[i-1][j]   == 1 ? 1 : 0;
+    num_neighbors += a[i-1][j+1] == 1 ? 1 : 0;
+
+    num_neighbors += a[i][j-1] == 1 ? 1 : 0;
+    num_neighbors += a[i][j+1] == 1 ? 1 : 0;
+
+    num_neighbors += a[i+1][j-1] == 1 ? 1 : 0;
+    num_neighbors += a[i+1][j]   == 1 ? 1 : 0;
+    num_neighbors += a[i+1][j+1] == 1 ? 1 : 0;
+
+    // printf("i:%d j:%d neighbors: %d", i, j, num_neighbors);
+    // printf("\n");
+
+    if (num_neighbors == 3)
+        return 1;
+
+    if (!a[i][j])
+        return 0;
+
+    if (num_neighbors == 2)
+        return 1;
+
+    return 0;
+
+}
+
+int update_board(int **a, int **b, int mrows, int ncols) {
+    int i, j;
+    int changed = 0;
+    int temp = 0;
+
+    for (i=1; i<mrows-1; i++) { 
+        for (j=1; j<ncols-1; j++) {
+            b[i][j] = is_alive(a, i, j);
+            
+            if (a[i][j] != b[i][j])
+                changed = 1;
+        }
+    }
+
+    for (; i<mrows-1; i++) { 
+        for (; j<ncols-1; j++) {
+            temp = a[i][j];
+            b[i][j] = is_alive(a, i, j);
+        }
+    }
+
+   for (i=1; i<mrows; i++) {
+        for (j=1; j<ncols; j++) {
+            a[i][j] = b[i][j];
+        }
+    }
+
+    return changed;
 }
 
 void print_board(int **a, int mrows, int ncols) {
@@ -92,49 +132,46 @@ void print_board(int **a, int mrows, int ncols) {
               printf("%d ", a[i][j]);
         printf("\n");
     }
+    printf("\n");
 }
 
 int main(int argc, char **argv) 
 {
-    int N, i, j, k;
+    int N, max_iterations;
     int **a=NULL, **b=NULL;
     double starttime, endtime;
 
-    if (argc != 2) {
-        printf("Usage: %s <N>\n", argv[0]);
+    if (argc != 3) {
+        printf("Usage: %s <N> <I>\n", argv[0]);
         exit(-1);
     }
     
     N = atoi(argv[1])+2;
+    max_iterations = atoi(argv[2]);
     
     /* Allocate memory for the current board */
     a = alloc_board(N, N);
-
-    /* Allocate memory for the next board */
     b = alloc_board(N, N);
-    
+
     /* Initialize the game matrix */
     srand48(123456);
-    a = init_board(a, N, N);
-    a = update_ghost_cells(a, N, N);
+    init_board(a, N, N);
+    update_ghost_cells(a, N, N);
+    // print_board(a, N, N);
 
     /* Run game loop until termination or max generation count is reached */
     starttime = get_time();
 
-    int terminate = 1;
+    int terminate = 0;
+    int iterations = 0;
 
-    while (!terminate) {
-
-        // game logic
-        // update function
-        // compare function
-        // set terminate
-        // printboard(a, N, N);
-
+    while (!terminate && iterations < max_iterations) {
+        terminate = !update_board(a, b, N, N);
+        update_ghost_cells(a, N, N);
+        // print_board(a, N, N);
+        iterations ++;
+        printf("%d\n", iterations);
     }
-
-    print_board(a, N, N);
-
 
     endtime = get_time();
 
