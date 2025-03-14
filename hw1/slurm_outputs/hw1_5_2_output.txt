@@ -1,0 +1,1 @@
+Time taken = 35634.702223 seconds
