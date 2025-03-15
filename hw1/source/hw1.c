@@ -10,19 +10,19 @@ Homework #: 1
 
 int **alloc_board(int P, int Q) {
     int i;
-    int *p, **a;
+    int *p, **game_board;
 
     p = (int *)malloc(P*Q*sizeof(int));
-    a = (int **)malloc(P*sizeof(int*));
+    game_board = (int **)malloc(P*sizeof(int*));
 
-    if (p == NULL || a == NULL) 
+    if (p == NULL || game_board == NULL) 
         printf("Error allocating memory\n");
 
     /* for row major storage */
     for (i = 0; i < P; i++)
         game_board[i] = &p[i*Q];
 
-    return a;
+    return game_board;
 }
 
 /*
@@ -130,18 +130,24 @@ int is_alive(int **game_board, int i, int j) {
  * This function updates each cell's status and returns true
  * if the status of any cell changed
  */
-int update_board(int **game_board, int temp_board, int mrows, int ncols) {
+int update_board(int **game_board, int **temp_board, int mrows, int ncols) {
     int i;
     int j;
     int updated = 0;
 
     for (i=1; i < mrows-1; i++) { 
         for (j=1; j < ncols-1; j++) {
-            temp_board[i][j] = is_alive(a, i, j);
+            temp_board[i][j] = is_alive(game_board, i, j);
             
             if (game_board[i][j] != temp_board[i][j]) {
-                changed = 1;
+                updated = 1;
             }
+        }
+    }
+
+    for (i=1; i < mrows-1; i++) { 
+        for (j=1; j < ncols-1; j++) {
+            game_board[i][j] = temp_board[i][j];
         }
     }
 
@@ -164,30 +170,33 @@ int main(int argc, char **argv) {
     int **temp_board = alloc_board(N, N);
 
     // seed the random number generator
+#ifdef DEBUG_PRINT
     srand48(123456);
+#endif
 
     // initialize the game board
-    init_board(a, N, N);
-    update_ghost_cells(a, N, N);
+    init_board(game_board, N, N);
+    update_ghost_cells(game_board, N, N);
+
+    int iterations = 0;
 
 #ifdef DEBUG_PRINT
     printf("%d\n", iterations);
-    print_board(a, N, N);
+    print_board(game_board, N, N);
     printf("\n");
 #endif
 
     int terminate = 0;
-    int iterations = 0;
     double starttime = get_time();
 
     // Run game loop until termination or max generation count is reached
     while (!terminate && iterations < max_iterations) {
-        terminate = !update_board(a, b, N, N);
-        update_ghost_cells(a, N, N);
+        terminate = !update_board(game_board, temp_board, N, N);
+        update_ghost_cells(game_board, N, N);
         
 #ifdef DEBUG_PRINT
         printf("%d\n", iterations);
-        print_board(a, N, N);
+        print_board(game_board, N, N);
         printf("\n");
 #endif
         
