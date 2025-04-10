@@ -1,7 +1,7 @@
 /*
 Name: Zachary Heras
 ID: 916316192
-Homework #: 1
+Homework #: 2
 */
 
 #include <stdio.h>
@@ -145,12 +145,6 @@ int update_board(int **game_board, int **temp_board, int mrows, int ncols) {
         }
     }
 
-    for (i=1; i < mrows-1; i++) { 
-        for (j=1; j < ncols-1; j++) {
-            game_board[i][j] = temp_board[i][j];
-        }
-    }
-
     return updated;
 }
 
@@ -162,6 +156,7 @@ int main(int argc, char **argv) {
     
     int N = atoi(argv[1])+2;
     int max_iterations = atoi(argv[2]);
+    int num_threads = atoi(argv[1]);
     
     // Allocate memory for the game board
     int **game_board = alloc_board(N, N);
@@ -181,9 +176,9 @@ int main(int argc, char **argv) {
     int iterations = 0;
 
 #ifdef DEBUG_PRINT
-    printf("%d\n", iterations);
-    print_board(game_board, N, N);
-    printf("\n");
+    // printf("%d\n", iterations);
+    // print_board(game_board, N, N);
+    // printf("\n");
 #endif
 
     int terminate = 0;
@@ -195,9 +190,9 @@ int main(int argc, char **argv) {
         update_ghost_cells(game_board, N, N);
         
 #ifdef DEBUG_PRINT
-        printf("%d\n", iterations);
-        print_board(game_board, N, N);
-        printf("\n");
+        // printf("%d\n", iterations);
+        // print_board(game_board, N, N);
+        // printf("\n");
 #endif
         
         iterations ++;
