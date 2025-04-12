@@ -1,26 +1,25 @@
-import math
-
 import matplotlib.pyplot as plt
 
 
 def main():
-    tests = {}
-    tests['Test case 1'] = [36.10, 36.11, 36.1]
-    tests['Test case 2'] = [913.24, 913.24, 913.08]
-    tests['Test case 3'] = [4449.08, 4448.15, 4452.05]
-    tests['Test case 4'] = [3661.31, 3663.24, 3663.42]
-    tests['Test case 5'] = [35548.96, 35643.70, 35520.12]
+    thread_counts = [1, 2, 4, 8, 10, 16, 20]
+    speedups = [1.00, 1.88, 3.27, 3.30, 2.73, 2.06, 1.94]
+    efficiencies = [1.00, 0.94, 0.82, 0.41, 0.27, 0.13, 0.10]
 
-    for test_case, test_results in tests.items():
-        print(sum(test_results)/len(test_results))
-        plt.bar(int(test_case[-1]),
-                math.log10(sum(test_results)/len(test_results)),
-                label=test_case)
+    for thread_count, speedup in zip(thread_counts, speedups):
+        plt.bar(thread_count, speedup, label=str(thread_count))
 
-    plt.title('Average Execution Time per Test Case')
-    plt.xlabel('Test Case')
-    plt.ylabel('Log10 of Execution Time')
+    plt.title('Speedup vs. Thread Count')
+    plt.xlabel('Thread Count')
+    plt.ylabel('Speedup')
+    plt.show()
 
+    for thread_count, efficiency in zip(thread_counts, efficiencies):
+        plt.bar(thread_count, efficiency, label=str(thread_count))
+
+    plt.title('Efficiency vs. Thread Count')
+    plt.xlabel('Thread Count')
+    plt.ylabel('Efficiency')
     plt.show()
 
 
