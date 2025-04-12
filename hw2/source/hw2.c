@@ -2,8 +2,8 @@
 Name: Zachary Heras
 ID: 916316192
 Homework #: 2
-To Compile: 
-To Run: 
+To Compile: gcc -fopenmp -o hw2 -DSET_SEED hw2.c
+To Run: ./hw2 <N> <I> <T>
 */
 
 #include <stdio.h>
