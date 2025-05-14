@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, urlcolor=blue]{hyperref}
+\usepackage{amsmath}
+
+\title{Homework 3: Game of Life MPI}
+\author{Zachary Heras}
+
+\begin{document}
+	\maketitle
+	
+	\section{Problem Statement}
+	The goal of this assignment is to develop a parallel program that simulates John Conway's \textit{Game of Life}, as part of the parallel and concurrent programming course at Rowan University. The program must accept a single input specifying the grid size, \(N\) (where the grid is \(N\) by \(N\)), another input for the maximum number of iterations the game is allowed to run, and an input for the number of threads that the program is allowed to use. A blocking and non-blocking implementation will be developed. The program's execution time will be evaluated and compare based on a set of test cases. The program is to be written in C using the OpenMPI API. All files associated with this project can be found on \href{https://github.com/ZacharyHeras/parallel_and_concurrent_programming/tree/main/hw3}{GitHub}.
+
+	\section{Program Design}
+	This program is based off of the serial version of the program from homework 1. With that in mind, we will only review how the program was parallelized, instead of focusing on the design of the game.
+	
+	To compile and run the blocking program, use the command \texttt{mpicc -o hw3\_blocking hw3\_blocking.c; mpiexec -n P ./hw3\_blocking N I}, or use the command \texttt{mpicc -o hw3\_blocking -DDEBUG\_PRINT hw3\_blocking.c; mpiexec -n P ./hw3\_blocking N I} to print out the game board after each iteration. To compile and run the non-blocking program, use the command \texttt{mpicc -o hw3\_nonblocking hw3\_nonblocking.c; mpiexec -n P ./hw3\_nonblocking N I}, or use the command \texttt{mpicc -o hw3\_nonblocking -DDEBUG\_PRINT hw3\_nonblocking.c; mpiexec -n P ./hw3\_nonblocking N I} to print out the game board after each iteration. \texttt{N} is the game board side size, \texttt{I} is the number of iterations, and \texttt{P} is the number of processes.
+	
+	To verify that the program was functioning correctly, the game board was traced until completion with a game board size of 5.
+
+	\section{Test Cases}
+	Once the program was made, the next step was to run tests to examine the execution time for each predetermined test. The tests that will be run are shown in table \ref{table1} below. Each test is run three times and the average value is taken to ensure consistency.
+
+	\section{Test System Configuration}
+	Each test was executed on my local machine, utilizing a set of my 6 processors. For this test suite, a board size of 5000, and a max iterations of 500 were used. This was done in lieu of setting a random seed; Each experiment ran for the maximum amount of iterations, which ensures that each test was equal in computation.
+
+	\section{Analysis and Conclusions}
+	Below, figure \ref{figure1}, figure \ref{figure2} and table \ref{table1} describe the resulting execution times and other metrics.
+	
+	The speedup (\(s\)) is defined as the ratio of the serial execution time (\(t_{\text{serial}}\)) to the parallel execution time (\(t_{\text{parallel}}\)):
+
+\[s = \frac{t_{\text{serial}}}{t_{\text{parallel}}}\]
+
+The efficiency (\(\eta\)) is the ratio of Speedup to the number of processors (\(P\)):
+
+\[\eta = \frac{s}{p}\]
+
+From table, we see a decrease in execution time as the thread count increases up until 8 threads. After 8 threads the execution time begins to decrease. This was unexpected, and is likely because of a more complicated cache miss issue. This unexpected outcome affected the results of the speedup and efficiency as well. The speed up began to sharply decrease after 8 threads was exceeded, and efficiency got significantly worse after 8 threads as a result. One thread can be thought of as sequential, and as seen it is slower in execution time than all of the larger thread count execution times.
+	
+	\begin{table}
+		\centering
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			\textbf{Method} & \textbf{Thread Count} & \textbf{Execution Time (s)} & \textbf{Speedup} & \textbf{Efficiency} \\
+			\hline
+			Serial Program   & 1 & &  &  \\
+			OpenMP           & 2 & & & \\
+			OpenMP           & 4 & & & \\
+			OpenMP           & 6 & & & \\
+			MPI Blocking     & 2 & 131 & & \\
+			MPI Blocking     & 4 & 67 & & \\
+			MPI Blocking     & 6 & 45 & & \\
+			MPI Non-Blocking & 2 & 131 & & \\
+			MPI Non-Blocking & 4 & & & \\
+			MPI Non-Blocking & 6 & & & \\
+			\hline
+		\end{tabular}
+		\caption{Tests showing thread count, execution time in seconds, speedup, and efficiency.}
+		\label{table1}
+	\end{table}
+	
+	\clearpage
+	
+	\section{References}
+	\begin{itemize}
+		\item \href{https://www.w3schools.com/c/}{https://www.w3schools.com/c/}
+		\item \href{https://www-lb.open-mpi.org/doc/v4.0/}{https://www-lb.open-mpi.org/doc/v4.0/}
+	\end{itemize}
+	
+\end{document}
